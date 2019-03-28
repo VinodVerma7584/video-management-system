@@ -7,8 +7,14 @@ python main.py
 
 ## Requirements
  - `PyQt5`
+ - `MongoDB` (Download link: [mongodb](https://www.mongodb.com/download-center/community))
  - Details in `conf/requirements.txt`.
- 
+
+## Features
+1. Import local videos (batch or manually).
+2. Save and classify videos in local database.
+3. Play videos.
+
 ## Modules
  - `./main.py`: Controller; program entrance.
  - `core/main_window.py`: View; main window.
