@@ -16,7 +16,7 @@ python main.py
 3. Play videos.
 
 ## Modules
- - `./main.py`: Controller; program entrance.
+ - `./main.py`: Controller; program entry.
  - `core/main_window.py`: View; main window.
  - `core/manual_import_waindow.py`: View; manual import window.
  - `core/model.py`: Model; database operations.
