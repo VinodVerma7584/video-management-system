@@ -10,6 +10,7 @@ class Model(object):
     """ Class:
     The operations about MongoDB.
     """
+    IMPORT_ERROR_LOG_PATH = r".\import_error.log"
     
     def __init__(self, parent=None):
         self.DB_NAME = "data"
@@ -123,7 +124,7 @@ class Model(object):
                     self.database[collection].update_one({}, regex_update)
                     
                 return 1
-            
+
         collection = self.database[doc['No']]
         collection.insert_one(doc)
         
@@ -142,10 +143,12 @@ class Model(object):
         # e.g. .CD1, .CD2
         check_cd_number = 0
         
+        error_log = ''
+        
         # Store the prepared data.
         for doc in doc_list:
             if doc['No'] == '':
-                if check_cd_number is 1:
+                if check_cd_number == 1:
                     no_number_video_index += 1
                     check_cd_number = 0
                 collection_name = 'None_' + str(no_number_video_index)
@@ -155,9 +158,24 @@ class Model(object):
                 check_cd_number = 1
             else:
                 collection_name = doc['No']
+            regex_find = {"_id": doc['_id']}
             
-            collection = self.database[collection_name]
-            collection.insert_one(doc)
+            # Check if the imported video exists in the database.
+            flag_exist = True
+            for collection in self.database.list_collection_names():
+                if self.database[collection].find_one(regex_find) != None:
+                    succeeded -= 1
+                    failed += 1
+                    flag_exist = False
+                    error_log += 'Warning: Failed to import. ' + doc['_id'] + ' exists.\n'
+                    break
+            if flag_exist:
+                collection = self.database[collection_name]
+                collection.insert_one(doc)
+                
+        if error_log != '':
+            with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
+                error_output.write(error_log)
             
         return succeeded, failed
 
@@ -235,6 +253,9 @@ class ClassifyData(object):
                 else:
                     print('Error: The file', line_text[:-1], 
                           'doesn\'t match the expression')
+                    with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
+                        error_msg = 'Error: ', line_text[:-1], 'doesn\'t match the expression'
+                        error_output.write(error_msg)
                     failed += 1
         
         return doc_list, succeeded, failed

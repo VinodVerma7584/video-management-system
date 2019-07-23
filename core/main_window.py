@@ -135,10 +135,11 @@ class Ui_MainWindow(QtCore.QObject):
         self.menu_import.addAction(self.action_manual_import)
         self.action_append = QtWidgets.QAction(MainWindow)
         self.action_append.setObjectName("action_append")
-        self.action_append.setStatusTip("Append new results to the end.")
+        self.action_append.setStatusTip("Save old and new results in {}.".format(
+                Ui_MainWindow.SAVE_LOG_PATH))
         self.action_new = QtWidgets.QAction(MainWindow)
         self.action_new.setObjectName("action_new")
-        self.action_new.setStatusTip("Delete original results.")
+        self.action_new.setStatusTip("Only save new results from selected file.")
         self.menu_save_log.addAction(self.action_append)
         self.menu_save_log.addAction(self.action_new)
         self.action_clear_log = QtWidgets.QAction(MainWindow)
@@ -181,7 +182,7 @@ class Ui_MainWindow(QtCore.QObject):
         self.action_batch_import.triggered.connect(lambda: MainWindow.import_data(1))
         self.action_manual_import.triggered.connect(lambda: MainWindow.import_data(0))
         self.signal_drop_database.connect(MainWindow.drop_database)
-        
+
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
     def right_click_menu(self, pos):
@@ -231,14 +232,17 @@ class Ui_MainWindow(QtCore.QObject):
             Operation 'New'.
             """
             
-            # Check if the folder 'save' is created.
-            if not os.path.isdir("save"):
-                os.mkdir("save")
+            options = QtWidgets.QFileDialog.Options()
+            options |= QtWidgets.QFileDialog.DontUseNativeDialog
+            filename, _ = QtWidgets.QFileDialog.getOpenFileName(
+                    QtWidgets.QMainWindow(), "QFileDialog.getOpenFileName()", 
+                    "", "All Files (*);;Text Files (*.txt)", options=options)
             
-            with open(Ui_MainWindow.SAVE_LOG_PATH, 'w', encoding='utf8') as output_file:
-                for i in range(self.result_display.count()):
-                    output_file.write(self.result_display.item(i).text() + '\n')
-            self.statusbar.showMessage("Info: 'New' successfully ...")
+            if filename:
+                with open(filename, 'w', encoding='utf8') as output_file:
+                    for i in range(self.result_display.count()):
+                        output_file.write(self.result_display.item(i).text() + '\n')
+                self.statusbar.showMessage("Info: 'New' successfully ...")
         elif menu_item.text() == "Clear":
             """ Case:
             Operation 'Clear'.

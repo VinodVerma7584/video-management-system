@@ -1,0 +1,4 @@
+.\data\*
+.\save\*
+.\import_error.log
+.\core\__pycache__\*

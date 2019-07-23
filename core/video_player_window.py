@@ -85,16 +85,17 @@ class VideoWindow(QMainWindow):
         
 #        QShortcut(Qt.Key_Up, self, self.arrow_up)
 #        QShortcut(Qt.Key_Down, self, self.arrow_down)
-        QShortcut(Qt.Key_Left, self, self.arrow_left)
-        QShortcut(Qt.Key_Right, self, self.arrow_right)
-
+        QShortcut(Qt.Key_Left, self, self.arrow_left_event)
+        QShortcut(Qt.Key_Right, self, self.arrow_right_event)
+        QShortcut(Qt.Key_Space, self, self.play_video)
+        
 #    def arrow_up(self):
 #        print("up")
 #
 #    def arrow_down(self):
 #        print("down")
-
-    def arrow_left(self):
+    
+    def arrow_left_event(self):
         """ Slot function:
         Action after the key 'arrow left' is pressed.
         Fast-forward to 10 seconds later.
@@ -102,7 +103,7 @@ class VideoWindow(QMainWindow):
         
         self.set_position(self.video_slider.value() - 10 * 1000)
 
-    def arrow_right(self):
+    def arrow_right_event(self):
         """ Slot function:
         Action after the key 'arrow right' is pressed.
         Go back to 10 seconds ago.
@@ -113,8 +114,8 @@ class VideoWindow(QMainWindow):
     def mousePressEvent(self, event):
         """ Slot function:
         The starting position of the slider is 50.
-        This function still can't not accurately move the slider to the clicked
-        position.
+        Note: This function still can't not accurately move the slider to the 
+        clicked position.
         """
         
         position = self.video_slider.minimum() + self.video_duration * (event.pos().x() - 50) / self.video_slider.width()
@@ -131,8 +132,9 @@ class VideoWindow(QMainWindow):
         """ Slot function:
         After clicking the 'close' button, pause the video.
         """
-        
+
         self.video_player.pause()
+        self.hide()
         
     def open_video(self):
         """ Slot function:
@@ -160,6 +162,7 @@ class VideoWindow(QMainWindow):
         
         self.video_player.setMedia(
                 QMediaContent(QUrl.fromLocalFile(video_name)))
+        self.show()
         self.button_play.setEnabled(True)
         self.video_player.play()
         
