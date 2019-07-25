@@ -135,6 +135,7 @@ class VideoWindow(QMainWindow):
 
         self.video_player.pause()
         self.hide()
+#        self.setVisible(False)
         
     def open_video(self):
         """ Slot function:
@@ -147,6 +148,7 @@ class VideoWindow(QMainWindow):
         if video_name != '':
             self.video_player.setMedia(
                     QMediaContent(QUrl.fromLocalFile(video_name)))
+#            self.setVisible(True)
             self.button_play.setEnabled(True)
             self.video_player.play()
         

@@ -15,6 +15,8 @@ import sys
 # TODO: Components scale up/down while the window zooms in/out.
 # TODO: One actress may have many Actress names.
 # TODO: arrow_up and arrow_down need to be completed.
+# TODO: Video window cannot correctly show after reopen.
+# TODO: Show the progress while batch importing.
 
 class MainForm(QtWidgets.QMainWindow):
     """ Class:
@@ -49,7 +51,7 @@ class MainForm(QtWidgets.QMainWindow):
         search_video_name = self.ui.text_video_name.text()
         search_actress_name = self.ui.text_actress_name.text()
         search_type = self.ui.text_type.text()
-        search_quality = self.ui.box_quality.currentText()
+        search_quality = self.ui.combobox_quality.currentText()
         search_quality_ckecked = self.ui.checkbox_quality.isChecked()
         input_text = [search_video_number, search_video_name, 
                       search_actress_name, search_type, 
@@ -72,7 +74,7 @@ class MainForm(QtWidgets.QMainWindow):
         'No.', set of 'Actress name', set of 'Type', and list of 'Favorite'.
         """
         
-        if option is 1:
+        if option == 1:
             """ Case 1:
             No.
             """
@@ -85,7 +87,7 @@ class MainForm(QtWidgets.QMainWindow):
                       if col['No'] != '' and col['No'][0] != '.']
             
             self.all_number = all_result
-        elif option is 2:
+        elif option == 2:
             """ Case 2:
             Actress name.
             """
@@ -105,7 +107,7 @@ class MainForm(QtWidgets.QMainWindow):
                 show_result.remove('')
             
             self.all_actress_name = show_result
-        elif option is 3:
+        elif option == 3:
             """ Case 3:
             Type.
             """
@@ -125,7 +127,7 @@ class MainForm(QtWidgets.QMainWindow):
                 show_result.remove('')
             
             self.all_type = show_result
-        elif option is 4:
+        elif option == 4:
             """ Case 4:
             Favorite.
             """
@@ -146,7 +148,7 @@ class MainForm(QtWidgets.QMainWindow):
         self._init_all(option)
         self.ui.result_display.clear()
         
-        if option is 1:
+        if option == 1:
             """ Case 1:
             No.
             """
@@ -157,7 +159,7 @@ class MainForm(QtWidgets.QMainWindow):
             msg = "Info: Show all 'No.' (Total: " 
             msg += str(len(self.all_number)) + ")"
             self.ui.statusbar.showMessage(msg)
-        elif option is 2:
+        elif option == 2:
             """ Case 2:
             Actress name.
             """
@@ -168,7 +170,7 @@ class MainForm(QtWidgets.QMainWindow):
             msg = "Info: Show all 'Actress name' (Total: "
             msg += str(len(self.all_actress_name)) + ")"
             self.ui.statusbar.showMessage(msg)
-        elif option is 3:
+        elif option == 3:
             """ Case 3:
             Type.
             """
@@ -179,7 +181,7 @@ class MainForm(QtWidgets.QMainWindow):
             msg = "Info: Show all 'Type' (Total: "
             msg += str(len(self.all_type)) + ")"
             self.ui.statusbar.showMessage(msg)
-        elif option is 4:
+        elif option == 4:
             """ Case 4:
             Favorite.
             """
@@ -375,6 +377,19 @@ class MainForm(QtWidgets.QMainWindow):
                             'Error: Import failed (Successful: {}, Failed: {}).'.format(check_succeeded, check_failed))
         else:
             manual_import_window.show()
+            
+    def show_all_videos(self):
+        """ Slot function.
+        The slot function of 'Show all'.
+        'Show all': Show all videos in the database.
+        """
+        search_results = self.mongodb_obj.show_all_videos()
+        
+        self.ui.result_display.clear()
+        self._show_result(search_results)
+            
+        self.ui.statusbar.showMessage('Info: Finish searching ... (Total: ' 
+                                      + str(len(search_results)) + ")")
     
     def drop_database(self):
         """ Slot function.
@@ -413,15 +428,45 @@ class ImportWindow(QtWidgets.QMainWindow):
         import_favorite = self.ui.checkbox_favorite.isChecked()
         import_type = self.ui.text_type.toPlainText().split(', ')
         import_quality = self.ui.combobox_quality.currentText()
-        import_location = self.ui.text_location.toPlainText()
-        check_correct = self.mongodb_obj.import_manual(
-                [import_number, import_video_name, import_actress_name, 
-                 import_favorite, import_type, import_quality, import_location])
+        import_location = self.ui.text_location.toPlainText().split(';; ')
+
+        success = 0
+        failed = 0
+        error_list = list()
+        for loc in import_location:
+            check_correct = self.mongodb_obj.import_manual([import_number, 
+                import_video_name, import_actress_name, import_favorite, 
+                import_type, import_quality, loc])
             
-        if not check_correct:
-            self.ui.statusbar.showMessage("Warning: The video exists.")
-        else:
-            manual_import_window.setVisible(False)
+            if not check_correct:
+                error = list()
+                error.append(import_number)
+                error.append(import_video_name)
+                error.append(import_actress_name)
+                error.append(import_favorite)
+                error.append(import_type)
+                error.append(import_quality)
+                error.append(loc)
+                error_list.append(error)
+                failed += 1
+            else:
+                success += 1
+                
+        keys = ['No', 'Video name', 'Actress name', 'Favorite', 'Type', 
+                'Quality', 'Location']
+        with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
+            for error_record in error_list:
+                error_output.write('Warning: Failed to import: \n')
+                error_output.write('--------------------------------------------------')
+                error_output.write('--------------------------------------------------\n')
+                for i in range(7):
+                    error_output.write(keys[i] + ': ' + str(error_record[i]) + '\n')
+                error_output.write('--------------------------------------------------')
+                error_output.write('--------------------------------------------------\n')
+            
+        self.ui.statusbar.showMessage("Info: Total: {}, Successful: {}, Failed: {}".format(
+                success + failed, success, failed))
+        self.ui.text_location.clear()
 
 if __name__ == "__main__":
     """

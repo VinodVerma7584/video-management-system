@@ -2,7 +2,6 @@
 """
 @author: GitHub@Oscarshu0719
 """
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class ManualImportWindow(object):
@@ -103,17 +102,17 @@ class ManualImportWindow(object):
         self.button_enter.clicked.connect(MainWindow.import_video)
 
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+    
     def select_video(self):
         """ Slot funtion:
-        Select a video and set the textbox with the path of selected video.
+        Select videos and set the textbox with the path of selected video.
         """
         
-        video_name, _ = QtWidgets.QFileDialog.getOpenFileName(
+        video_name, _ = QtWidgets.QFileDialog.getOpenFileNames(
                 QtWidgets.QMainWindow(), "Select video", QtCore.QDir.homePath())
         
         if video_name != '':
-            self.text_location.setText(video_name)
+            self.text_location.setText(';; '.join(video_name))
 
     def retranslateUi(self, MainWindow):
         """ Function:
@@ -134,5 +133,3 @@ class ManualImportWindow(object):
         self.combobox_quality.setItemText(3, _translate("MainWindow", "1080p"))
         self.label_video_name.setText(_translate("MainWindow", "Video name"))
         self.button_enter.setText(_translate("MainWindow", "Enter"))
-    
-            

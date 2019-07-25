@@ -3,6 +3,7 @@
 @author: GitHub@Oscarshu0719
 """
 
+from math import floor
 from pymongo import MongoClient
 import re
 
@@ -109,6 +110,9 @@ class Model(object):
         
         doc = ClassifyData.init_data_manual(input_data[6])
         
+        if doc == False:
+            return False
+        
         regex = ['No', 'Video name', 'Actress name', 'Favorite', 'Type', 
                  'Quality']
         regex_find = {"_id": doc['_id']}
@@ -123,12 +127,12 @@ class Model(object):
                         {'Location': input_data[6][:input_data[6].rfind('/')]}}
                     self.database[collection].update_one({}, regex_update)
                     
-                return 1
+                return True
 
         collection = self.database[doc['No']]
         collection.insert_one(doc)
         
-        return 1
+        return True
             
     def import_batch(self, folder):
         """ Function:
@@ -145,6 +149,9 @@ class Model(object):
         
         error_log = ''
         
+        total_progress = len(doc_list)
+        progress = 0
+        print_label = 0
         # Store the prepared data.
         for doc in doc_list:
             if doc['No'] == '':
@@ -172,12 +179,27 @@ class Model(object):
             if flag_exist:
                 collection = self.database[collection_name]
                 collection.insert_one(doc)
+            
+            # Print the progress.
+            progress += 1
+            progress_percent = floor(progress / total_progress * 100)
+            if progress_percent % 10 == 0 and progress_percent // 10 != print_label:
+                msg = 'Progress: ' + progress_percent + '%'
+                print(msg)
+                print_label = progress_percent % 10
                 
         if error_log != '':
             with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
                 error_output.write(error_log)
             
         return succeeded, failed
+    
+    def show_all_videos(self):
+        doc_list = list()
+        for collection in self.database.list_collection_names():
+            doc_list.append(self.database[collection].find_one())
+            
+        return doc_list
 
 class ClassifyData(object):
     """ Class:
@@ -251,10 +273,10 @@ class ClassifyData(object):
                     
                     succeeded += 1
                 else:
-                    print('Error: The file', line_text[:-1], 
+                    print('Warning: The file', line_text[:-1], 
                           'doesn\'t match the expression')
                     with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
-                        error_msg = 'Error: ', line_text[:-1], 'doesn\'t match the expression'
+                        error_msg = 'Warning: ' + line_text[:-1] + ' doesn\'t match the expression\n'
                         error_output.write(error_msg)
                     failed += 1
         

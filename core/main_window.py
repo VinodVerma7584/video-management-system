@@ -133,6 +133,10 @@ class Ui_MainWindow(QtCore.QObject):
         self.action_manual_import.setStatusTip("Manually import data.")
         self.menu_import.addAction(self.action_batch_import)
         self.menu_import.addAction(self.action_manual_import)
+        self.action_show_all = QtWidgets.QAction(MainWindow)
+        self.action_show_all.setObjectName("action_show_all")
+        self.action_show_all.setStatusTip("Show all videos.")
+        self.menuitem_menu.addAction(self.action_show_all)
         self.action_append = QtWidgets.QAction(MainWindow)
         self.action_append.setObjectName("action_append")
         self.action_append.setStatusTip("Save old and new results in {}.".format(
@@ -182,6 +186,7 @@ class Ui_MainWindow(QtCore.QObject):
         self.action_batch_import.triggered.connect(lambda: MainWindow.import_data(1))
         self.action_manual_import.triggered.connect(lambda: MainWindow.import_data(0))
         self.signal_drop_database.connect(MainWindow.drop_database)
+        self.action_show_all.triggered.connect(MainWindow.show_all_videos)
 
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         
@@ -323,6 +328,8 @@ class Ui_MainWindow(QtCore.QObject):
         self.action_batch_import.setShortcut(_translate("MainWindow", "Ctrl+B"))
         self.action_manual_import.setText(_translate("MainWindow", "Manual"))
         self.action_manual_import.setShortcut(_translate("MainWindow", "Ctrl+M"))
+        self.action_show_all.setText(_translate("MainWindow", "Show all"))
+        self.action_show_all.setShortcut(_translate("MainWindow", "Ctrl+S"))
         self.action_append.setText(_translate("MainWindow", "Append"))
         self.action_append.setShortcut(_translate("MainWindow", "Ctrl+A"))
         self.action_new.setText(_translate("MainWindow", "New"))
