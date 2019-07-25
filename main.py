@@ -16,7 +16,6 @@ import sys
 # TODO: One actress may have many Actress names.
 # TODO: arrow_up and arrow_down need to be completed.
 # TODO: Video window cannot correctly show after reopen.
-# TODO: Show the progress while batch importing.
 
 class MainForm(QtWidgets.QMainWindow):
     """ Class:
@@ -66,7 +65,7 @@ class MainForm(QtWidgets.QMainWindow):
         self._show_result(search_results)
             
         self.ui.statusbar.showMessage('Info: Finish searching ... (Total: ' 
-                                      + str(len(search_results)) + ")")
+                                      + str(len(search_results)) + ").")
         
     def _init_all(self, option):
         """ Function:
@@ -157,7 +156,7 @@ class MainForm(QtWidgets.QMainWindow):
                 self.ui.result_display.addItem(result)
             
             msg = "Info: Show all 'No.' (Total: " 
-            msg += str(len(self.all_number)) + ")"
+            msg += str(len(self.all_number)) + ")."
             self.ui.statusbar.showMessage(msg)
         elif option == 2:
             """ Case 2:
@@ -168,7 +167,7 @@ class MainForm(QtWidgets.QMainWindow):
                 self.ui.result_display.addItem(result)
                 
             msg = "Info: Show all 'Actress name' (Total: "
-            msg += str(len(self.all_actress_name)) + ")"
+            msg += str(len(self.all_actress_name)) + ")."
             self.ui.statusbar.showMessage(msg)
         elif option == 3:
             """ Case 3:
@@ -179,7 +178,7 @@ class MainForm(QtWidgets.QMainWindow):
                 self.ui.result_display.addItem(result)
             
             msg = "Info: Show all 'Type' (Total: "
-            msg += str(len(self.all_type)) + ")"
+            msg += str(len(self.all_type)) + ")."
             self.ui.statusbar.showMessage(msg)
         elif option == 4:
             """ Case 4:
@@ -189,7 +188,7 @@ class MainForm(QtWidgets.QMainWindow):
             self._show_result(self.all_favorite)
                 
             msg = "Info: Show all 'Favorite' (Total: "
-            msg += str(len(self.all_favorite))  + ")"
+            msg += str(len(self.all_favorite))  + ")."
             self.ui.statusbar.showMessage(msg)
     
     def _show_result(self, search_results):
@@ -236,7 +235,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.ui.statusbar.showMessage("Info: Videos about Actress '" 
                                           + text + "' ..." + 
                                           ' (Total: ' + str(len(search_results)) 
-                                          + ")")
+                                          + ").")
             
         elif text in self.all_type:
             """
@@ -252,7 +251,7 @@ class MainForm(QtWidgets.QMainWindow):
             self.ui.statusbar.showMessage("Info: Videos about Type '" 
                                           + text + "' ..." + 
                                           ' (Total: ' + str(len(search_results))
-                                          + ")")
+                                          + ").")
         else:
             """
             No. and Full name. 
@@ -389,7 +388,7 @@ class MainForm(QtWidgets.QMainWindow):
         self._show_result(search_results)
             
         self.ui.statusbar.showMessage('Info: Finish searching ... (Total: ' 
-                                      + str(len(search_results)) + ")")
+                                      + str(len(search_results)) + ").")
     
     def drop_database(self):
         """ Slot function.
@@ -464,7 +463,7 @@ class ImportWindow(QtWidgets.QMainWindow):
                 error_output.write('--------------------------------------------------')
                 error_output.write('--------------------------------------------------\n')
             
-        self.ui.statusbar.showMessage("Info: Total: {}, Successful: {}, Failed: {}".format(
+        self.ui.statusbar.showMessage("Info: Import successfully (Total: {}, Successful: {}, Failed: {}).".format(
                 success + failed, success, failed))
         self.ui.text_location.clear()
 

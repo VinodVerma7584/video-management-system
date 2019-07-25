@@ -183,11 +183,12 @@ class Model(object):
             # Print the progress.
             progress += 1
             progress_percent = floor(progress / total_progress * 100)
-            if progress_percent % 10 == 0 and progress_percent // 10 != print_label:
-                msg = 'Progress: ' + progress_percent + '%'
+            if progress_percent // 10 != print_label:
+                msg = r'Progress (Checking existence): {}% ({}/{}).'.format(progress_percent, 
+                                 progress, total_progress)
                 print(msg)
-                print_label = progress_percent % 10
-                
+                print_label = progress_percent // 10
+
         if error_log != '':
             with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
                 error_output.write(error_log)
@@ -228,57 +229,72 @@ class ClassifyData(object):
         
         input_path = 'data\\' + folder[folder.rfind('/') + 1:] + '.log'
 
+        input_text_list = list()
         with open(input_path, 'r', encoding='utf8') as input_file:
-            for line_text in input_file:
-                match = ClassifyData.pattern.match(line_text)
+            input_text_list = [line for line in input_file]
+            
+        total_progress = len(input_text_list)
+        progress = 0
+        print_label = 0
+        for line_text in input_text_list:
+            match = ClassifyData.pattern.match(line_text)
+            
+            if match:
+                doc = dict()
                 
-                if match:
-                    doc = dict()
-                    
-                    # Full video name.
-                    doc['_id'] = match.group(0)
-                    
-                    # Video No..
-                    doc['No'] = match.group(1)
-                    video_no.append(match.group(1))
-                    
-                    # Video name.
-                    doc['Video name'] = match.group(2)
-                    video_name.append(match.group(2))
-                    
-                    # Actress's name.
-                    tmp = match.group(3).split(', ')
-                    doc['Actress name'] = tmp
-                    actress_name_list.append(tmp)
-                    
-                    # Video genre and Favorite.
-                    tmp = match.group(4).split(', ')
-                    if 'Favorite' in tmp:
-                        doc['Favorite'] = True
-                    else:
-                        doc['Favorite'] = False
-                        
-                    doc['Type'] = tmp
-                    type_list.append(tmp)
-                    
-                    # Video quality.
-                    doc['Quality'] = match.group(5)
-                    quality.append(match.group(5))
-                    
-                    # Location.
-                    doc['Location'] = folder
-                    
-                    # Documents' list.
-                    doc_list.append(doc)
-                    
-                    succeeded += 1
+                # Full video name.
+                doc['_id'] = match.group(0)
+                
+                # Video No..
+                doc['No'] = match.group(1)
+                video_no.append(match.group(1))
+                
+                # Video name.
+                doc['Video name'] = match.group(2)
+                video_name.append(match.group(2))
+                
+                # Actress's name.
+                tmp = match.group(3).split(', ')
+                doc['Actress name'] = tmp
+                actress_name_list.append(tmp)
+                
+                # Video genre and Favorite.
+                tmp = match.group(4).split(', ')
+                if 'Favorite' in tmp:
+                    doc['Favorite'] = True
                 else:
-                    print('Warning: The file', line_text[:-1], 
-                          'doesn\'t match the expression')
-                    with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
-                        error_msg = 'Warning: ' + line_text[:-1] + ' doesn\'t match the expression\n'
-                        error_output.write(error_msg)
-                    failed += 1
+                    doc['Favorite'] = False
+                    
+                doc['Type'] = tmp
+                type_list.append(tmp)
+                
+                # Video quality.
+                doc['Quality'] = match.group(5)
+                quality.append(match.group(5))
+                
+                # Location.
+                doc['Location'] = folder
+                
+                # Documents' list.
+                doc_list.append(doc)
+                
+                succeeded += 1
+            else:
+                print('Warning: The file', line_text[:-1], 
+                      'doesn\'t match the expression.')
+                with open(Model.IMPORT_ERROR_LOG_PATH, 'a', encoding='utf8') as error_output:
+                    error_msg = 'Warning: ' + line_text[:-1] + ' doesn\'t match the expression.\n'
+                    error_output.write(error_msg)
+                failed += 1
+            
+            # Print the progress.
+            progress += 1
+            progress_percent = floor(progress / total_progress * 100)
+            if progress_percent // 10 != print_label:
+                msg = r'Progress (Loading): {}% ({}/{}).'.format(progress_percent, 
+                                 progress, total_progress)
+                print(msg)
+                print_label = progress_percent // 10
         
         return doc_list, succeeded, failed
                     
