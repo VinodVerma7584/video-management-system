@@ -368,12 +368,9 @@ class MainForm(QtWidgets.QMainWindow):
                 
                 check_succeeded, check_failed = self.mongodb_obj.import_batch(folder)
                 
-                if not check_failed:
-                    self.ui.statusbar.showMessage(
-                            'Info: Import successfully (Total: {}).'.format(check_succeeded))
-                else:
-                    self.ui.statusbar.showMessage(
-                            'Error: Import failed (Successful: {}, Failed: {}).'.format(check_succeeded, check_failed))
+                self.ui.statusbar.showMessage(
+                    'Info: Import successfully (Total: {}, Successful: {}, Failed: {}).'.format(
+                            check_succeeded + check_failed, check_succeeded, check_failed))
         else:
             manual_import_window.show()
             
