@@ -16,10 +16,11 @@ OUTPUT_PATH = ".\\test_import_error.log"
 pattern = re.compile(r'(.*)_(.*)_(.*)_(.*)_(.*)\.(?:.*)')
 
 # Output of each case is included in one row, and logs are saved in columns. 
-output_log = [[]]
+output_log = [[], []]
 
 case_list = ["Check if type 'Amateur' is in type list if the video has no \
-actress name"
+actress name",
+             "Check if the types are in ascending order"
             ]
 
 # Traverse each video in the database.
@@ -38,15 +39,22 @@ for collection in DATABASE.list_collection_names():
         Check if type 'Amateur' is in type list if the video has no actress 
         name. 
         """
-        case = 0
         if '' in actress_name and 'Amateur' not in video_type:
-            output_log[case].append(col["_id"])
+            output_log[0].append(col["_id"])
+
+        """ Case 2
+        Check if the types are in ascending order.
+        """
+        if not all([video_type[i] < video_type[i + 1] for i in 
+            range(len(video_type) - 1)]):
+            output_log[1].append(col["_id"])
 
 # Output log.
 case_no = 1
 with open(OUTPUT_PATH, 'w', encoding='utf8') as output:
     for case in output_log:
         output.write('Case {}: {}.\n'.format(case_no, case_list[case_no - 1]))
+        output.write('Total: {}.\n'.format(len(case)))
         for log in case:
             output.write(log + '\n')
         output.write('\n')
