@@ -51,15 +51,12 @@ class Model(object):
         """ Function:
         Specific query for the videos' names started with '.' or None.
         """
-
+        
         for collection in self.database.list_collection_names():
-            tmp = "^" + selected_item
-            regex_text = {"_id": {"$regex": tmp}}
-            search_result = self.database[collection].find_one(regex_text)
-            if search_result != None:
-                break
-            
-        return collection
+            for col in self.database[collection].find():
+                dot_index = col["_id"].rfind(".")
+                if col["_id"][:dot_index] == selected_item:
+                    return collection
      
     def add_to_remove_from_favorite(self, selected_item, option, flag):
         """ Function:
